@@ -5,46 +5,37 @@ const express = require('express')
 const app = express()
 app.use(express.json());
 
+const usersClass = require('./usersClass')
+// const data = require('./data.json');
+
+// const usersList = data.userInfo || new usersClass([],process.env.currId);
+const usersList = new usersClass([],process.env.currId);
+
+app.get('/users', (req,res) => {
+    
+    usersList.listAllUsers()
+})
+
+app.get('/users/:id', (req,res) => {
+    const userId = req.params.id;
+    usersList.readSingleUser(userId);
+})
+
+app.post('/users', (req,res) => {
+    const userDetails = req.body;
+    usersList.createUser(userDetails)
+})
+
+app.patch('/users/:id', (req,res) => {
+    const updatedDetails = req.body;
+    usersList.createUser(updatedDetails)
+})
+
+app.delete('/users/:id' , (req,res) => {
+    const userId = req.params.id;
+    usersList.deleteUser(userId)
+})
+
 const curr = process.env.id;
-
-class users {
-    constructor(curr){
-        this.userInfo = []
-        this.currId = curr
-    }
-
-    // verify the details and add it to the users and save it in data.json file
-    createUser(){
-        app.post('/users', (req,res) => {
-
-        })
-    }
-
-    deleteUser(){
-        app.delete('/:id', (req,res) => {
-
-        })
-    }
-
-    listAllUsers(){
-        app.get('/users', (req,res) => {
-
-        })
-    }
-
-    updateUser(){
-        app.patch('/users/:id', () => {
-
-        })
-    }
-
-    readSingleUser(){
-        app.get('/users/:id', (req,res) => {
-
-        })
-    }
-}
-
-
 
 app.listen(3000)
