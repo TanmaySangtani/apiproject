@@ -7,7 +7,13 @@
   "dependencies": {
     "axios": "^1.6.5",
     "body-parser": "^1.20.2",
+<<<<<<< HEAD
     "express": "^4.18.2"
+=======
+    "crypto": "^1.0.1",
+    "express": "^4.18.2",
+    "validator": "^13.11.0"
+>>>>>>> abhinav-createuser
   },
   "devDependencies": {
     "nodemon": "^3.0.3"
