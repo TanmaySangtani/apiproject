@@ -3,7 +3,11 @@ const crypto = require('crypto');
 const fs = require('fs')
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser');
 app.use(express.json());
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const usersClass = require('./usersClass')
 // const data = require('./data.json');
@@ -21,9 +25,19 @@ app.get('/users/:id', (req,res) => {
     usersList.readSingleUser(userId);
 })
 
-app.post('/users', (req,res) => {
+app.post('/users', (req,res, next) => {
     const userDetails = req.body;
-    usersList.createUser(userDetails)
+    try{
+
+        const data = usersList.createUser(userDetails);
+        console.log(usersList);
+        res.status(200).json(data);
+    }
+    catch(err){
+        
+        res.status(400).json({message: err.message});
+    }
+    
 })
 
 app.patch('/users/:id', (req,res) => {
