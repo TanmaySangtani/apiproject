@@ -1,3 +1,4 @@
+const { error } = require('console');
 const crypto = require('crypto')
 class users {
     constructor(userInfo, curr) {
@@ -59,19 +60,32 @@ class users {
     }
 
      listAllUsers(){
-            return res.send(userInfo)
+            return  this.userInfo
     }
 
-    updateUser(userId) {
-
+    updatecreate() {
+               
     }
 
     readSingleUser(targetId){
-        const finduser=userInfo.find(user=>{
-            user.id===targetid
-        })  
-        if(finduser)return res.send(finduser)
-        else res.send({"message":"user not found"})
+        
+         try{
+            const finduser=this.userInfo.find(user=>{
+                return user.id===targetId
+            })  
+            if(finduser){
+                return finduser
+            }
+            else {
+                const error=new Error("user is not found")
+                error.status=404
+                return error
+            }
+         }catch(error){
+            throw error
+         }
+        
+
     }
 }
 

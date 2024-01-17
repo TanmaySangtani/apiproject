@@ -1,6 +1,4 @@
-const { default: axios } = require("axios");
-const crypto = require('crypto');
-const fs = require('fs')
+
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser');
@@ -13,17 +11,18 @@ const usersClass = require('./usersClass')
 // const data = require('./data.json');
 
 // const usersList = data.userInfo || new usersClass([],process.env.currId);
-const usersList = new usersClass([],process.env.currId);
+const usersList = new usersClass([],Number(process.env.currId));
 
 app.get('/getallusers', (req,res) => {
     
-    usersList.listAllUsers()
+    res.status(200).json (usersList.listAllUsers())
     
 })
 
-app.get('/users/:id', (req,res) => {
-    const userId = req.params.id;
-    usersList.readSingleUser(userId);
+app.get('/user/:id', (req,res) => {
+    const userId = parseInt(req.params.id);
+    console.log(userId)
+    res.status(200).json(usersList.readSingleUser(userId));
 })
 
 app.post('/users', (req,res, next) => {
@@ -31,7 +30,6 @@ app.post('/users', (req,res, next) => {
     try{
 
         const data = usersList.createUser(userDetails);
-        console.log(usersList);
         res.status(200).json(data);
     }
     catch(err){
