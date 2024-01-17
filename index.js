@@ -11,9 +11,10 @@ const usersClass = require('./usersClass')
 // const usersList = data.userInfo || new usersClass([],process.env.currId);
 const usersList = new usersClass([],process.env.currId);
 
-app.get('/users', (req,res) => {
+app.get('/getallusers', (req,res) => {
     
     usersList.listAllUsers()
+    
 })
 
 app.get('/users/:id', (req,res) => {
