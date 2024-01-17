@@ -62,9 +62,9 @@ app.patch('/users/:id', (req,res) => {
     }
 })
 
-app.delete('/users/:id' , (req,res) => {
+app.delete('/delete/:id' , (req,res) => {
     const userId = req.params.id;
-    usersList.deleteUser(userId)
+    res.status(200).json(usersList.deleteUser(userId))
 })
 
 const curr = process.env.id;
