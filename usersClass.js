@@ -1,3 +1,7 @@
+var fs = require('fs');
+
+
+
 
 class users {
     constructor(userInfo,curr){
@@ -11,6 +15,11 @@ class users {
     }
 
     deleteUser(userId){
+        this.userInfo=(this.userInfo).filter((curr)=>{
+            return curr.Id!=userId;
+        })
+
+        return ;
 
     }
 
@@ -26,5 +35,8 @@ class users {
         
     }
 }
+
+var temp=new users();
+temp.deleteUser(123);
 
 module.exports = users
