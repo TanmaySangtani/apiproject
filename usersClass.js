@@ -1,5 +1,5 @@
-const { error } = require('console');
-const crypto = require('crypto')
+const crypto = require('crypto');
+
 class users {
     constructor(userInfo, curr) {
         this.userInfo = userInfo,
@@ -29,6 +29,14 @@ class users {
 
                 const error = new Error('Invalid Mobile Number');
                 error.status = 400;
+                throw error;
+            }
+
+            if(this.userInfo.filter((data)=>{
+                return data.mobile === mobile;
+            }).length ){
+                const error = new Error("User Already Exists");
+                error.status=403;
                 throw error;
             }
 
