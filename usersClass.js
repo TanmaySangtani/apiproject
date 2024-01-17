@@ -36,8 +36,8 @@ class users {
                 return data.mobile === mobile;
             }).length ){
                 const error = new Error("User Already Exists");
-                error.status(403);
-                throw err;
+                error.status=403;
+                throw error;
             }
 
             const hash = crypto.createHash('sha256');
