@@ -13,7 +13,7 @@ const usersClass = require('./usersClass')
 // const data = require('./data.json');
 
 // const usersList = data.userInfo || new usersClass([],process.env.currId);
-const usersList = new usersClass([],process.env.currId);
+const usersList = new usersClass([],parseInt(process.env.currId));
 
 app.get('/users', (req,res) => {
     

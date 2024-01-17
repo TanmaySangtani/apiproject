@@ -31,6 +31,14 @@ class users {
                 throw error;
             }
 
+            if(this.userInfo.filter((data)=>{
+                return data.mobile === mobile;
+            }).length ){
+                const error = new Error("User Already Exists");
+                error.status(403);
+                throw err;
+            }
+
             const hash = crypto.createHash('sha256');
             hash.update(password);
             const hashedPassword = hash.digest('hex');
