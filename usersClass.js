@@ -58,16 +58,20 @@ class users {
 
     }
 
-    listAllUsers() {
-
+     listAllUsers(){
+            return res.send(userInfo)
     }
 
     updateUser(userId) {
 
     }
 
-    readSingleUser(userId) {
-
+    readSingleUser(targetId){
+        const finduser=userInfo.find(user=>{
+            user.id===targetid
+        })  
+        if(finduser)return res.send(finduser)
+        else res.send({"message":"user not found"})
     }
 }
 
