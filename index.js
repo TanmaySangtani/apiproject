@@ -17,7 +17,7 @@ app.get('/getallusers', (req,res) => {
 
 app.get('/user/:id', (req,res) => {
     const userId = parseInt(req.params.id);
-    console.log(userId)
+    // console.log(userId)
     res.status(200).json(usersList.readSingleUser(userId));
 })
 
@@ -62,7 +62,7 @@ app.patch('/users/:id', (req,res) => {
 app.delete('/users/:id', (req, res) => {
     const userId = Number(req.params.id);
 
-    if (isNaN(userId) || userId <= 0) {
+    try{if (isNaN(userId) || userId <= 0) {
         return res.status(400).json({ message: 'Invalid user ID' });
     }
     const userIndex = usersList.userInfo.findIndex(user => user.id === userId);
@@ -71,7 +71,10 @@ app.delete('/users/:id', (req, res) => {
         usersList.deleteUser(userId);
         res.status(200).json({ message: 'User deleted successfully'});
     } else {
-        res.status(404).json({ message: 'User not found' });
+        res.status(404).json({ message: 'User not found' });    
+    
+    }}catch{
+        res.status(500).json({message: 'Internal server error'})
     }
 });
 
