@@ -1,31 +1,40 @@
-const { default: axios } = require("axios");
-const crypto = require('crypto');
-const fs = require('fs')
+
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser');
 app.use(express.json());
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const usersClass = require('./usersClass')
-// const data = require('./data.json');
+const usersList = new usersClass([],parseInt(process.env.currId));
 
-// const usersList = data.userInfo || new usersClass([],process.env.currId);
-const usersList = new usersClass([],process.env.currId);
-
-app.get('/users', (req,res) => {
+app.get('/getallusers', (req,res) => {
     
-    usersList.listAllUsers()
+    res.status(200).json (usersList.listAllUsers())
+    
 })
 
-app.get('/users/:id', (req,res) => {
-    const userId = req.params.id;
-    usersList.readSingleUser(userId);
+app.get('/user/:id', (req,res) => {
+    const userId = parseInt(req.params.id);
+    console.log(userId)
+    res.status(200).json(usersList.readSingleUser(userId));
 })
 
-app.post('/users', (req,res) => {
+app.post('/users', (req,res, next) => {
     const userDetails = req.body;
-    usersList.createUser(userDetails)
+    try{
+
+        const data = usersList.createUser(userDetails);
+        res.status(200).json(data);
+    }
+    catch(err){
+        
+        res.status(400).json({message: err.message});
+    }
+    
 })
+
 
 app.patch('/users/:id', (req,res) => {
     const updatedDetails = req.body;
@@ -50,10 +59,21 @@ app.patch('/users/:id', (req,res) => {
     }
 })
 
-app.delete('/users/:id' , (req,res) => {
-    const userId = req.params.id;
-    usersList.deleteUser(userId)
-})
+app.delete('/users/:id', (req, res) => {
+    const userId = Number(req.params.id);
+
+    if (isNaN(userId) || userId <= 0) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
+    const userIndex = usersList.userInfo.findIndex(user => user.id === userId);
+
+    if (userIndex !== -1) {
+        usersList.deleteUser(userId);
+        res.status(200).json({ message: 'User deleted successfully'});
+    } else {
+        res.status(404).json({ message: 'User not found' });
+    }
+});
 
 const curr = process.env.id;
 
