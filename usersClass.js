@@ -1,3 +1,5 @@
+const fs = require('fs')
+
 
 class users {
     constructor(userInfo,curr){
@@ -11,6 +13,12 @@ class users {
     }
 
     deleteUser(userId){
+        
+        const index = this.userInfo.findIndex(user => user.id === userId);
+ 
+        if (index !== -1) {
+            this.userInfo.splice(index, 1);
+        } 
 
     }
 
