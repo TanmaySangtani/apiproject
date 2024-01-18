@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const authorizeMiddleware = require("./middleware/authmiddleware");
-const errorMiddleware = require("./errormiddleware");
+const errorMiddleware = require("./middleware/errormiddleware");
 app.use(express.json());
 
 app.use(bodyParser.json());
