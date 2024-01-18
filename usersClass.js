@@ -75,39 +75,58 @@ class users {
             return  this.userInfo
     }
 
-    updateUser() {
+
+    updateUser(userDetails){
         try {
-            const foundUser = this.userInfo.find(obj=> obj.id === userDetails.id)
+
+            const foundUser = this.userInfo.find(obj => obj.id === userDetails.id)
 
             if (foundUser) {
-                //name
-                if (userDetails.name === "") {
-                    const error = new Error('Name is required')
-                    error.status = 400
-                    throw error
-                }
-                foundUser.name=userDetails.name
+                
+                if (userDetails.mobile.length !== 0) {
+                    
+                    //mobile validation
+                    function isItAValidNumber(number) {
+                        //if the length of string is not 10 or it has characters other than digits then return true
+                        let regex = /\D/
+                        return (!regex.test(number) && number.length === 10)
+                    }
+                    if (!isItAValidNumber(userDetails.mobile)) {
+                        const error = new Error('mobile number should consist of 10 digits only')
+                        error.status = 400
+                        throw error
+                    }
 
-                //mobile
-                if (userDetails.mobile.length === 10 && parseInt(userDetails.mobile)) {
-                    //if the length of string is 10 and it consists of digits only then
+                    //checking if the mobile number already exists
+                    const foundMobile = this.userInfo.find(obj=> obj.mobile === userDetails.mobile)
+                    if (foundMobile) {
+                        const error = new Error('mobile number already exists')
+                        error.status = 400
+                        throw error                    
+                    }
+
+                    //updating the number
                     foundUser.mobile=userDetails.mobile
                 }
-                else {
-                    const error = new Error('mobile number should consist of 10 digits only')
-                    error.status = 400
-                    throw error
-                }
+                if (userDetails.name.length !== 0) {
+                    //updating the name
+                    foundUser.name=userDetails.name
+                } 
+                if (userDetails.email.length !== 0) {
+                    //updating the email
+                    foundUser.email=userDetails.email
+                } 
+                if (userDetails.password.length !== 0) {
+                    //password hashing
+                    const hash = crypto.createHash('sha256')
+                    hash.update(userDetails.password)
+                    const hashedPassword = hash.digest('hex')
 
-                //email
-                foundUser.email=userDetails.email
-
-                //password
-                const hash = crypto.createHash('sha256')
-                hash.update(userDetails.password)
-                const hashedPassword = hash.digest('hex')
-                foundUser.password=(hashedPassword)
-            } 
+                    //updating the password
+                    foundUser.password=(hashedPassword)
+                }   
+                
+            }
             else {
                 const error = new Error(`No user found with value of id as ${userDetails.id}`)
                 error.status = 404
