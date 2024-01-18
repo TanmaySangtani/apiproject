@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const errorMiddleware=require('./errormiddleware')
 
 class users {
     constructor(userInfo, curr) {
@@ -72,7 +73,9 @@ class users {
                     return "User Deleted"
                 }
                 else{
-                    throw new Error("user not found")
+                    const error = new Error('User not found');
+                    error.status = 404;
+                    throw error;
                 }
 
             }catch(err){
@@ -141,7 +144,7 @@ class users {
             else {
                 const error=new Error("user is not found")
                 error.status=404
-                return error
+                throw error
             }
          }catch(error){
             throw error
