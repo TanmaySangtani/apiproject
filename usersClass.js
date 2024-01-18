@@ -64,20 +64,11 @@ class users {
     }
 
     deleteUser(userId) {
-            try{
-                const useridtodelete=parseInt(userId)
-                const getuserindex=this.userInfo.findIndex(user=>user.id===useridtodelete)
-                if(getuserindex!=-1){
-                    const deleteuser=this.userInfo.splice(getuserindex,1)[0]
-                    return "User Deleted"
-                }
-                else{
-                    throw new Error("user not found")
-                }
-
-            }catch(err){
-                   throw err;
-            }
+        const index = this.userInfo.findIndex(user => user.id === userId);
+ 
+        if (index !== -1) {
+            this.userInfo.splice(index, 1);
+        } 
     }
 
      listAllUsers(){

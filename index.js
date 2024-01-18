@@ -3,14 +3,10 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser');
 app.use(express.json());
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const usersClass = require('./usersClass')
-// const data = require('./data.json');
-
-// const usersList = data.userInfo || new usersClass([],process.env.currId);
 const usersList = new usersClass([],parseInt(process.env.currId));
 
 app.get('/getallusers', (req,res) => {
@@ -39,6 +35,7 @@ app.post('/users', (req,res, next) => {
     
 })
 
+
 app.patch('/users/:id', (req,res) => {
     const updatedDetails = req.body;
 
@@ -62,10 +59,21 @@ app.patch('/users/:id', (req,res) => {
     }
 })
 
-app.delete('/delete/:id' , (req,res) => {
-    const userId = req.params.id;
-    res.status(200).json(usersList.deleteUser(userId))
-})
+app.delete('/users/:id', (req, res) => {
+    const userId = Number(req.params.id);
+
+    if (isNaN(userId) || userId <= 0) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
+    const userIndex = usersList.userInfo.findIndex(user => user.id === userId);
+
+    if (userIndex !== -1) {
+        usersList.deleteUser(userId);
+        res.status(200).json({ message: 'User deleted successfully'});
+    } else {
+        res.status(404).json({ message: 'User not found' });
+    }
+});
 
 const curr = process.env.id;
 
