@@ -1,34 +1,19 @@
-const express = require('express')
-const app = express() 
-
-myConnection.con.connect(function (err) {
-  if (err) {
-    console.error('Error connecting to the database:', err);
-    return;
-  }else{
-    app.listen(3000)
-    console.log('Database connection established')
-    console.log('Server is running on port 3000')
-    
-  }
-});
-
+const express = require("express");
+const app = express();
+const connection = require("./connection");
+const myConnection = new connection("users", process.env.password);
 
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const authorizeMiddleware = require("./middleware/authmiddleware");
 const errorMiddleware = require("./middleware/errormiddleware");
-const connection = require("./connection");
-const myConnection = new connection("users", process.env.password);
 
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-
-app.get("/users", async (req, res, next) => {
+app.get("/users", authorizeMiddleware, async (req, res, next) => {
   try {
     const data = await myConnection.listAllUsers();
     if (data) {
@@ -43,7 +28,7 @@ app.get("/users", async (req, res, next) => {
   }
 });
 
-app.get("/user/:id", async (req, res, next) => {
+app.get("/user/:id", authorizeMiddleware, async (req, res, next) => {
   try {
     const userId = parseInt(req.params.id);
     const response = await myConnection.readSingleUser(userId);
@@ -60,13 +45,44 @@ app.get("/user/:id", async (req, res, next) => {
   }
 });
 
-app.post("/users",(req, res, next) => {
+app.post("/users", async (req, res, next) => {
   const userDetails = req.body;
   try {
-    const data = usersList.createUser(userDetails);
-    res.status(200).json(data);
+    const { name, mobile, password, email } = userDetails;
+    if (!name || !mobile) {
+      const error = new Error("Name or Mobile not provided");
+      error.status = 400;
+      throw error;
+    }
+    if (mobile.length !== 10) {
+      const error = new Error("Invalid Mobile Number");
+      error.status = 400;
+      throw error;
+    }
+    const reg = /\d+/g;
+    const match = mobile.match(reg);
+    console.log(match);
+    if (match[0].length !== 10) {
+      const error = new Error("Invalid Mobile Number");
+      error.status = 400;
+      throw error;
+    }
+
+    const hash = crypto.createHash("sha256");
+    hash.update(password);
+    const hashedPassword = hash.digest("hex");
+
+    const data = await myConnection.createUser({
+      id: this.currId,
+      name,
+      mobile,
+      password: hashedPassword,
+      email,
+    });
+    // console.log(usersList);
+    res.status(200).json({ message: "done " });
   } catch (err) {
-    next(err);
+    res.status(400).json({ message: err.message });
   }
 });
 
@@ -91,29 +107,25 @@ app.patch("/users/:id", authorizeMiddleware, (req, res, next) => {
   }
 });
 
-app.delete("/users/:id", async (req, res, next) => {
+app.delete("/users/:id", authorizeMiddleware, async (req, res, next) => {
   const userId = Number(req.params.id);
 
   if (isNaN(userId)) {
     const error = new Error("Invalid id");
     error.status = 400;
-    next(error)
+    next(error);
   }
 
   try {
     const affectedRows = await myConnection.deleteUser(userId);
 
-    if (affectedRows === 0){
+    if (affectedRows === 0) {
       const error = new Error("No record with given id");
       error.status = 404;
       throw error;
-    }
-      
-    else
-      res.status(200).send('Deleted successfully.');
-
+    } else res.status(200).send("Deleted successfully.");
   } catch (error) {
-    next(error)
+    next(error);
   }
 });
 

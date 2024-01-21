@@ -9,14 +9,6 @@ class connection {
       password: password,
       database: db,
     });
-
-    this.con.connect(function (err) {
-      if (err) {
-        console.log("eror");
-        throw err;
-      }
-      console.log("Connected!");
-    });
   }
 
   async createUser(data) {
