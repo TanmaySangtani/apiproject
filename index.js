@@ -1,13 +1,12 @@
 const express = require("express");
 const app = express();
 const connection = require("./connection");
-const myConnection = new connection("users", process.env.password);
-
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const authorizeMiddleware = require("./middleware/authmiddleware");
 const errorMiddleware = require("./middleware/errormiddleware");
+const myConnection = new connection("users", process.env.password);
 
 app.use(express.json());
 app.use(bodyParser.json());
@@ -45,7 +44,7 @@ app.get("/user/:id", authorizeMiddleware, async (req, res, next) => {
   }
 });
 
-app.post("/users", async (req, res, next) => {
+app.post("/createusers", async (req, res, next) => {
   const userDetails = req.body;
   try {
     const { name, mobile, password, email } = userDetails;
@@ -71,7 +70,6 @@ app.post("/users", async (req, res, next) => {
     const hash = crypto.createHash("sha256");
     hash.update(password);
     const hashedPassword = hash.digest("hex");
-
     const data = await myConnection.createUser({
       id: this.currId,
       name,
@@ -79,14 +77,13 @@ app.post("/users", async (req, res, next) => {
       password: hashedPassword,
       email,
     });
-    // console.log(usersList);
     res.status(200).json({ message: "done " });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
 
-app.patch("/users/:id", authorizeMiddleware, (req, res, next) => {
+app.patch("/updateusers/:id", authorizeMiddleware, (req, res, next) => {
   const updatedDetails = req.body;
 
   try {
@@ -107,8 +104,8 @@ app.patch("/users/:id", authorizeMiddleware, (req, res, next) => {
   }
 });
 
-app.delete("/users/:id", authorizeMiddleware, async (req, res, next) => {
-  const userId = Number(req.params.id);
+app.delete("/deleteusers/:id", authorizeMiddleware, async (req, res, next) => {
+  const userId = parseInt(req.params.id);
 
   if (isNaN(userId)) {
     const error = new Error("Invalid id");
@@ -134,9 +131,6 @@ app.post("/auth/login", async (req, res) => {
 
   try {
     const { mobile, password } = req.body;
-    const hash = crypto.createHash("sha256");
-    hash.update(password);
-    const hashedPassword = hash.digest("hex");
     const rows = await myConnection.authrizeuser(password, mobile);
     if (rows) {
       const token = jwt.sign({ mobile, password }, "abc", {
@@ -158,3 +152,6 @@ app.get("/auth", (req, res) => {
 });
 
 app.use(errorMiddleware);
+app.listen(3000, () => {
+  console.log("server is running");
+});

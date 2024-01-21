@@ -1,19 +1,26 @@
 const mysql = require("mysql2");
+const util = require("util");
+const crypto = require("crypto");
 
 class connection {
   constructor(db, password) {
     this.password = password;
+    this.database = db;
     this.con = mysql.createConnection({
       host: "localhost",
       user: "root",
       password: password,
       database: db,
     });
+    this.con.connect(function (err) {
+      if (err) throw err;
+      console.log("Connected!");
+    });
   }
 
   async createUser(data) {
-    const findUser = `select mobile from ${this.table} where mobile=${data.mobile}`;
-    const insert = `insert into ${this.table}  values (NULL,?,?,?,? )`;
+    const findUser = `select mobile from userDetails where mobile=${data.mobile}`;
+    const insert = `insert into userDetails  values (NULL,?,?,?,? )`;
 
     const queryAsync = util.promisify(this.con.query).bind(this.con);
 
@@ -51,6 +58,7 @@ class connection {
   async listAllUsers() {
     const q = "select * from userDetails";
     const response = await this.con.promise().query(q);
+    console.log("inside class");
     return response[0];
   }
   async readSingleUser(targetId) {
@@ -62,8 +70,13 @@ class connection {
   updateUser() {}
 
   async authrizeuser(password, mobile) {
+    const hash = crypto.createHash("sha256");
+    hash.update(password);
+    const hashedPassword = hash.digest("hex");
     const q = "select * from userdetails where mobile=? and password=?";
-    const response = await this.con.promise().query(q, [mobile, password]);
+    const response = await this.con
+      .promise()
+      .query(q, [mobile, hashedPassword]);
     return response[0][0];
   }
 }
