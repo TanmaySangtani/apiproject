@@ -1,21 +1,34 @@
-const express = require("express");
-const app = express();
+const express = require('express')
+const app = express()
+
+const Connection = require('./connection');  
+const myConnection = new Connection("users", "userDetails");  
+
+myConnection.con.connect(function (err) {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    return;
+  }else{
+    app.listen(3000)
+    console.log('Database connection established')
+    console.log('Server is running on port 3000')
+    
+  }
+});
+
+
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const authorizeMiddleware = require("./middleware/authmiddleware");
 const errorMiddleware = require("./middleware/errormiddleware");
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(errorMiddleware)
 
 const usersClass = require("./usersClass");
-// const data = require('./data.json');
-
-// const usersList = data.userInfo || new usersClass([],process.env.currId);
-
-const usersList = new usersClass([], parseInt(process.env.currId));
+const usersList = new usersClass([], 1);
 
 app.get("/getallusers", (req, res, next) => {
   try {
@@ -37,7 +50,7 @@ app.get("/user/:id", (req, res, next) => {
   }
 });
 
-app.post("/users", (req, res, next) => {
+app.post("/users",(req, res, next) => {
   const userDetails = req.body;
   try {
     const data = usersList.createUser(userDetails);
@@ -47,7 +60,7 @@ app.post("/users", (req, res, next) => {
   }
 });
 
-app.patch("/users/:id", (req, res, next) => {
+app.patch("/users/:id", authorizeMiddleware, (req, res, next) => {
   const updatedDetails = req.body;
 
   try {
@@ -68,14 +81,33 @@ app.patch("/users/:id", (req, res, next) => {
   }
 });
 
-app.delete("/users/:id", (req, res) => {
+app.delete("/users/:id", async (req, res, next) => {
+  const userId = Number(req.params.id);
+
+  if (isNaN(userId)) {
+    const error = new Error("Invalid id");
+    error.status = 400;
+    next(error)
+  }
+
   try {
-    const userId = req.params.id;
-    res.status(200).json(usersList.deleteUser(userId));
-  } catch (erro) {
-    next(error);
+    const affectedRows = await myConnection.deleteUser(userId);
+
+    if (affectedRows === 0){
+      const error = new Error("No record with given id");
+      error.status = 404;
+      throw error;
+    }
+      
+    else
+      res.status(200).send('Deleted successfully.');
+
+  } catch (error) {
+    next(error)
   }
 });
+
+
 
 app.post("/auth/login", (req, res) => {
   const secretkey = "abc";
@@ -103,11 +135,8 @@ app.post("/auth/login", (req, res) => {
     res.status(500).json({ message: "some error occured" });
   }
 });
-app.get("/auth", authorizeMiddleware, (req, res) => {
+app.get("/auth", (req, res) => {
   res.status(200).json({ message: "Protedcted route accessed" });
 });
 
 app.use(errorMiddleware);
-const curr = process.env.id;
-
-app.listen(3000);
