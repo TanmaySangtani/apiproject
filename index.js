@@ -13,6 +13,14 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+function isNumber(str) {
+  let regex = /\D/;
+  return !regex.test(str);
+}
+function isMobileNumber(str) {
+  return isNumber(str) && str.length === 10;
+}
+
 app.get("/users", authorizeMiddleware, async (req, res, next) => {
   try {
     const data = await myConnection.listAllUsers();
@@ -40,7 +48,6 @@ app.get("/user/:id", authorizeMiddleware, async (req, res, next) => {
       throw err;
     }
   } catch (error) {
-    console.log("i am here");
     next(error);
   }
 });
@@ -54,15 +61,8 @@ app.post("/users", async (req, res, next) => {
       error.status = 400;
       throw error;
     }
-    if (mobile.length !== 10) {
-      const error = new Error("Invalid Mobile Number");
-      error.status = 400;
-      throw error;
-    }
-    const reg = /\d+/g;
-    const match = mobile.match(reg);
-    console.log(match);
-    if (match[0].length !== 10) {
+
+    if (!isMobileNumber(mobile)) {
       const error = new Error("Invalid Mobile Number");
       error.status = 400;
       throw error;
@@ -79,30 +79,70 @@ app.post("/users", async (req, res, next) => {
       password: hashedPassword,
       email,
     });
-    // console.log(usersList);
+
     res.status(200).json({ message: "done " });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
 
-app.patch("/users/:id", authorizeMiddleware, (req, res, next) => {
-  const updatedDetails = req.body;
+app.patch("/users/:id", authorizeMiddleware, async (req, res, next) => {
+  let updatedDetails = req.body;
 
   try {
-    if (parseInt(req.params.id)) {
-      updatedDetails.id = parseInt(req.params.id);
-    } else {
+    //Validation of id
+    if (!isNumber(req.params.id)) {
       const error = new Error("id is not a number");
       error.status = 400;
       throw error;
     }
 
-    usersList.updateUser(updatedDetails);
+    updatedDetails.id = parseInt(req.params.id);
+
+    let areAllFieldsEmpty = true;
+
+    if (updatedDetails.name) {
+      areAllFieldsEmpty = false;
+    }
+
+    if (updatedDetails.email) {
+      areAllFieldsEmpty = false;
+    }
+
+    if (updatedDetails.password) {
+      areAllFieldsEmpty = false;
+
+      //password hashing
+      const hash = crypto.createHash("sha256");
+      hash.update(updatedDetails.password);
+      const hashedPassword = hash.digest("hex");
+      updatedDetails.password = hashedPassword;
+    }
+
+    if (updatedDetails.mobile) {
+      areAllFieldsEmpty = false;
+
+      //Validation of mobile number
+      if (!isMobileNumber(updatedDetails.mobile)) {
+        const error = new Error(
+          "mobile number should consist of 10 digits only"
+        );
+        error.status = 400;
+        throw error;
+      }
+    }
+
+    if (areAllFieldsEmpty) {
+      const error = new Error("All fields cannot be blank");
+      error.status = 400;
+      throw error;
+    }
+
+    //updating the data in db
+    await myConnection.updateUser(updatedDetails);
 
     res.status(200).json({ message: "User updated successfully" });
   } catch (err) {
-    // res.status(err.status).json({message: err.message})
     next(err);
   }
 });
@@ -149,10 +189,10 @@ app.post("/auth/login", async (req, res) => {
       throw error;
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "some error occured" });
   }
 });
+
 app.get("/auth", (req, res) => {
   res.status(200).json({ message: "Protedcted route accessed" });
 });

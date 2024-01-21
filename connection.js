@@ -53,13 +53,48 @@ class connection {
     const response = await this.con.promise().query(q);
     return response[0];
   }
+
   async readSingleUser(targetId) {
     const q = "select * from userdetails where id=?";
     const response = await this.con.promise().query(q, [targetId]);
-    console.log(response);
     return response[0][0];
   }
-  updateUser() {}
+
+  async updateUser(updatedDetails) {
+    const { id, name, email, password, mobile } = updatedDetails;
+
+    const q = "UPDATE USERDETAILS SET ";
+
+    let setClauses = [];
+    let params = [];
+
+    if (name) {
+      setClauses.push("NAME=?");
+      params.push(name);
+    }
+    if (email) {
+      setClauses.push("EMAIL=?");
+      params.push(email);
+    }
+    if (password) {
+      setClauses.push("PASSWORD=?");
+      params.push(password);
+    }
+    if (mobile) {
+      setClauses.push("MOBILE=?");
+      params.push(mobile);
+    }
+
+    q = q + setClauses.join(", ");
+
+    q = q + "WHERE ID=?";
+    params.push(id);
+
+    console.log(q);
+
+    const response = await this.con.promise().query(q, params);
+    return response[0][0];
+  }
 
   async authrizeuser(password, mobile) {
     const q = "select * from userdetails where mobile=? and password=?";
