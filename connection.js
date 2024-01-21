@@ -71,7 +71,7 @@ class connection {
   async updateUser(updatedDetails) {
     const { id, name, email, password, mobile } = updatedDetails;
 
-    const q = "UPDATE USERDETAILS SET ";
+    let q = "UPDATE USERDETAILS SET ";
 
     let setClauses = [];
     let params = [];
@@ -94,11 +94,8 @@ class connection {
     }
 
     q = q + setClauses.join(", ");
-
-    q = q + "WHERE ID=?";
+    q = q + " WHERE ID=?";
     params.push(id);
-
-    console.log(q);
 
     const response = await this.con.promise().query(q, params);
     return response[0][0];
