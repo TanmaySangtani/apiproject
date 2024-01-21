@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const authorizeMiddleware = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
+const authHeader = req.headers["authorization"];
 
   if (authHeader) {
     const tokenParts = authHeader.split(" ");
@@ -22,4 +22,6 @@ const authorizeMiddleware = (req, res, next) => {
     res.status(401).json({ message: "Authorization header not provided" });
   }
 };
+
+
 module.exports = authorizeMiddleware;

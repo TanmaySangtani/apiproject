@@ -7,7 +7,7 @@ class connection {
       host: "localhost",
       user: "root",
       password: password,
-      database: "users",
+      database: db,
     });
 
     this.con.connect(function (err) {
@@ -18,10 +18,43 @@ class connection {
       console.log("Connected!");
     });
   }
-  createUser(userDetail) {
-    const { name, address, country } = req.bod;
+
+  async createUser(data) {
+    const findUser = `select mobile from ${this.table} where mobile=${data.mobile}`;
+    const insert = `insert into ${this.table}  values (NULL,?,?,?,? )`;
+
+    const queryAsync = util.promisify(this.con.query).bind(this.con);
+
+    try {
+      const result = await queryAsync(findUser, []);
+      if (result.length !== 0) {
+        const error = new Error("User already exists");
+        error.status = 401;
+        throw error;
+      }
+
+      const val = [data.name, data.email, data.password, data.mobile];
+      await queryAsync(insert, val);
+    } catch (err) {
+      throw err;
+    }
   }
-  deleteUser(userId) {}
+
+  deleteUser(userId) {
+    return new Promise((resolve, reject) => {
+      const deleteQuery = "DELETE FROM USERDETAILS WHERE id = ?";
+
+      this.con.query(deleteQuery, [userId], async (error, results) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        const affectedRows = results.affectedRows;
+        resolve(affectedRows);
+      });
+    });
+  }
 
   async listAllUsers() {
     const q = "select * from userDetails";
