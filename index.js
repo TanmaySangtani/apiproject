@@ -35,7 +35,7 @@ app.get("/users", authorizeMiddleware, async (req, res, next) => {
   }
 });
 
-app.get("/user/:id", authorizeMiddleware, async (req, res, next) => {
+app.get("/users/:id", authorizeMiddleware, async (req, res, next) => {
   try {
     const userId = parseInt(req.params.id);
     const response = await myConnection.readSingleUser(userId);
@@ -51,7 +51,7 @@ app.get("/user/:id", authorizeMiddleware, async (req, res, next) => {
   }
 });
 
-app.post("/createusers", async (req, res, next) => {
+app.post("/users", async (req, res, next) => {
   const userDetails = req.body;
   try {
     const { name, mobile, password, email } = userDetails;
@@ -145,7 +145,7 @@ app.patch("/users/:id", authorizeMiddleware, async (req, res, next) => {
   }
 });
 
-app.delete("/deleteusers/:id", authorizeMiddleware, async (req, res, next) => {
+app.delete("/users/:id", authorizeMiddleware, async (req, res, next) => {
   const userId = parseInt(req.params.id);
 
   if (isNaN(userId)) {
