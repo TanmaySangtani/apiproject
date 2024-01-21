@@ -58,7 +58,6 @@ class connection {
   async listAllUsers() {
     const q = "select * from userDetails";
     const response = await this.con.promise().query(q);
-    console.log("inside class");
     return response[0];
   }
 
