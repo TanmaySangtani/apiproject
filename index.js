@@ -10,27 +10,41 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(errorMiddleware)
 
-const usersClass = require("./usersClass");
+//const usersClass = require("./usersClass");
+const connection = require("./connection");
 // const data = require('./data.json');
 
 // const usersList = data.userInfo || new usersClass([],process.env.currId);
 
-const usersList = new usersClass([], parseInt(process.env.currId));
+//const usersList = new usersClass([], parseInt(process.env.currId));
+const myConnection = new connection("users", process.env.password);
 
-app.get("/getallusers", (req, res, next) => {
+app.get("/users", async (req, res, next) => {
   try {
-    res.status(200).json(usersList.listAllUsers());
+    const data = await myConnection.listAllUsers();
+    if (data) {
+      res.status(200).json(data);
+    } else {
+      const err = new error("No user Found");
+      err.status = 404;
+      throw err;
+    }
   } catch (error) {
     next(error);
   }
 });
 
-app.get("/user/:id", (req, res, next) => {
+app.get("/user/:id", async (req, res, next) => {
   try {
     const userId = parseInt(req.params.id);
-    console.log(userId);
-    const response = usersList.readSingleUser(userId);
-    res.status(200).json(response);
+    const response = await myConnection.readSingleUser(userId);
+    if (response) {
+      res.status(200).json(response);
+    } else {
+      const err = new Error("User is not found");
+      err.status = 404;
+      throw err;
+    }
   } catch (error) {
     console.log("i am here");
     next(error);
@@ -68,7 +82,7 @@ app.patch("/users/:id", (req, res, next) => {
   }
 });
 
-app.delete("/users/:id", (req, res) => {
+app.delete("/users/:id", authorizeMiddleware, (req, res) => {
   try {
     const userId = req.params.id;
     res.status(200).json(usersList.deleteUser(userId));
@@ -77,7 +91,7 @@ app.delete("/users/:id", (req, res) => {
   }
 });
 
-app.post("/auth/login", (req, res) => {
+app.post("/auth/login", async (req, res) => {
   const secretkey = "abc";
 
   try {
@@ -85,10 +99,8 @@ app.post("/auth/login", (req, res) => {
     const hash = crypto.createHash("sha256");
     hash.update(password);
     const hashedPassword = hash.digest("hex");
-    const user = usersList.userInfo.find((user) => {
-      return user.password === hashedPassword && user.mobile === mobile;
-    });
-    if (user) {
+    const rows = await myConnection.authrizeuser(password, mobile);
+    if (rows) {
       const token = jwt.sign({ mobile, password }, "abc", {
         expiresIn: "1h",
       });
