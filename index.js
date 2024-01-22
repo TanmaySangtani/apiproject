@@ -27,7 +27,7 @@ app.get("/users", authorizeMiddleware, async (req, res, next) => {
   }
 });
 
-app.get("/user/:id", authorizeMiddleware, async (req, res, next) => {
+app.get("/users/:id", authorizeMiddleware, async (req, res, next) => {
   try {
     const userId = parseInt(req.params.id);
     const response = await myConnection.readSingleUser(userId);
@@ -83,7 +83,7 @@ app.post("/users", async (req, res, next) => {
   }
 });
 
-app.patch("/updateusers/:id", authorizeMiddleware, (req, res, next) => {
+app.patch("/users/:id", authorizeMiddleware, (req, res, next) => {
   const updatedDetails = req.body;
 
   try {
@@ -104,7 +104,7 @@ app.patch("/updateusers/:id", authorizeMiddleware, (req, res, next) => {
   }
 });
 
-app.delete("/delete/:id", authorizeMiddleware, async (req, res, next) => {
+app.delete("/users/:id", authorizeMiddleware, async (req, res, next) => {
   const userId = parseInt(req.params.id);
 
   if (isNaN(userId)) {
@@ -146,9 +146,6 @@ app.post("/auth/login", async (req, res) => {
     console.log(error);
     res.status(500).json({ message: "some error occured" });
   }
-});
-app.get("/auth", (req, res) => {
-  res.status(200).json({ message: "Protedcted route accessed" });
 });
 
 app.use(errorMiddleware);
