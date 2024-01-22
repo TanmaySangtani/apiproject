@@ -21,7 +21,6 @@ class users {
       }
       const reg = /\d+/g;
       const match = mobile.match(reg);
-      console.log(match);
       if (match[0].length !== 10) {
         const error = new Error("Invalid Mobile Number");
         error.status = 400;
