@@ -19,21 +19,22 @@ class connection {
   }
 
   async createUser(data) {
-    const findUser = `select mobile from userDetails where mobile=${data.mobile}`;
+    // const findUser = `select mobile from userDetails where mobile=${data.mobile}`;
     const insert = `insert into userDetails  values (NULL,?,?,?,? )`;
 
-    const queryAsync = util.promisify(this.con.query).bind(this.con);
+    //const queryAsync = util.promisify(this.con.query).bind(this.con);
 
     try {
-      const result = await queryAsync(findUser, []);
-      if (result.length !== 0) {
-        const error = new Error("User already exists");
-        error.status = 401;
-        throw error;
-      }
+      // const result = await queryAsync(findUser, []);
+      // if (result.length !== 0) {
+      //   const error = new Error("User already exists");
+      //   error.status = 401;
+      //   throw error;
+      // }
 
       const val = [data.name, data.email, data.password, data.mobile];
-      await queryAsync(insert, val);
+      const queryAsync = await this.con.promise().query(insert, val);
+      return "user created";
     } catch (err) {
       throw err;
     }

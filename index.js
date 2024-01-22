@@ -44,7 +44,7 @@ app.get("/user/:id", authorizeMiddleware, async (req, res, next) => {
   }
 });
 
-app.post("/createusers", async (req, res, next) => {
+app.post("/users", async (req, res, next) => {
   const userDetails = req.body;
   try {
     const { name, mobile, password, email } = userDetails;
@@ -104,7 +104,7 @@ app.patch("/updateusers/:id", authorizeMiddleware, (req, res, next) => {
   }
 });
 
-app.delete("/deleteusers/:id", authorizeMiddleware, async (req, res, next) => {
+app.delete("/delete/:id", authorizeMiddleware, async (req, res, next) => {
   const userId = parseInt(req.params.id);
 
   if (isNaN(userId)) {
