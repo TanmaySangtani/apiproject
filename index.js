@@ -97,7 +97,6 @@ app.patch("/users/:id", authorizeMiddleware, (req, res, next) => {
 
     res.status(200).json({ message: "User updated successfully" });
   } catch (err) {
-    // res.status(err.status).json({message: err.message})
     next(err);
   }
 });
