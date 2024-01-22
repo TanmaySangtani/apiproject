@@ -39,7 +39,6 @@ app.get("/users/:id", authorizeMiddleware, async (req, res, next) => {
       throw err;
     }
   } catch (error) {
-    console.log("i am here");
     next(error);
   }
 });
@@ -60,7 +59,6 @@ app.post("/users", async (req, res, next) => {
     }
     const reg = /\d+/g;
     const match = mobile.match(reg);
-    console.log(match);
     if (match[0].length !== 10) {
       const error = new Error("Invalid Mobile Number");
       error.status = 400;
@@ -143,7 +141,6 @@ app.post("/auth/login", async (req, res) => {
       throw error;
     }
   } catch (error) {
-    console.log(error);
     res.status(500).json({ message: "some error occured" });
   }
 });
