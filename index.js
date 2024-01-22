@@ -84,6 +84,7 @@ app.post("/users", async (req, res, next) => {
   }
 });
 
+
 app.patch("/users/:id", authorizeMiddleware, async (req, res, next) => {
   let updatedDetails = req.body;
 
@@ -186,10 +187,6 @@ app.post("/auth/login", async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "some error occured" });
   }
-});
-
-app.get("/auth", (req, res) => {
-  res.status(200).json({ message: "Protedcted route accessed" });
 });
 
 app.use(errorMiddleware);
