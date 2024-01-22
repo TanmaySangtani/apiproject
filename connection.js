@@ -59,13 +59,11 @@ class connection {
   async listAllUsers() {
     const q = "select * from userDetails";
     const response = await this.con.promise().query(q);
-    console.log("inside class");
     return response[0];
   }
   async readSingleUser(targetId) {
     const q = "select * from userdetails where id=?";
     const response = await this.con.promise().query(q, [targetId]);
-    console.log(response);
     return response[0][0];
   }
   updateUser() {}
